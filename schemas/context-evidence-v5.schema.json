@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crowsi://auth/context-evidence/v5",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "issuer", "service_id", "pairwise_subject", "device_id",
+    "device_proof_key_ref", "session_ref", "device_posture", "device_posture_revision",
+    "subject_revocation_epoch", "service_revocation_epoch", "device_revocation_epoch",
+    "session_revocation_epoch", "channel", "audience", "scopes", "issued_at",
+    "expires_at", "nonce", "authentication_assurance", "authenticated_at",
+    "operation_digest", "signature"
+  ],
+  "properties": {
+    "schema_version": { "const": 5 },
+    "issuer": { "$ref": "#/$defs/id128" },
+    "service_id": { "$ref": "#/$defs/id64" },
+    "pairwise_subject": { "$ref": "#/$defs/id128" },
+    "device_id": { "$ref": "#/$defs/id128" },
+    "device_proof_key_ref": { "$ref": "#/$defs/id128" },
+    "session_ref": { "$ref": "#/$defs/sessionRef128" },
+    "device_posture": { "$ref": "#/$defs/id64" },
+    "device_posture_revision": { "type": "integer", "minimum": 1 },
+    "subject_revocation_epoch": { "type": "integer", "minimum": 1 },
+    "service_revocation_epoch": { "type": "integer", "minimum": 1 },
+    "device_revocation_epoch": { "type": "integer", "minimum": 1 },
+    "session_revocation_epoch": { "type": "integer", "minimum": 1 },
+    "channel": { "enum": ["app-http", "mcp-http", "mcp-stdio"] },
+    "audience": { "type": "string", "pattern": "^[!-~]{1,300}$" },
+    "scopes": {
+      "type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9.:-]{0,95}$" }
+    },
+    "issued_at": { "type": "integer", "minimum": 1 },
+    "expires_at": { "type": "integer", "minimum": 1 },
+    "nonce": { "$ref": "#/$defs/id128" },
+    "authentication_assurance": { "enum": ["aal1", "aal2", "aal3"] },
+    "authenticated_at": { "type": "integer", "minimum": 1 },
+    "operation_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "signature": { "type": "string", "pattern": "^[0-9a-f]{128}$" }
+  },
+  "$defs": {
+    "id64": { "type": "string", "pattern": "^[a-z][a-z0-9.:-]{0,63}$" },
+    "id128": { "type": "string", "pattern": "^[a-z][a-z0-9.:-]{0,127}$" },
+    "sessionRef128": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]{0,127}$" }
+  }
+}

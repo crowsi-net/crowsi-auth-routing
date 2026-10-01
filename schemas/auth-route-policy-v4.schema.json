@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crowsi://auth/route-policy/v4",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "service_id", "session_authority", "routes"],
+  "properties": {
+    "schema_version": { "const": 4 },
+    "service_id": { "type": "string", "pattern": "^[a-z][a-z0-9.:-]{0,63}$" },
+    "session_authority": {
+      "enum": ["service-sqlite", "service-identity-provider"]
+    },
+    "context_verifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issuer", "ed25519_public_key"],
+      "properties": {
+        "issuer": { "type": "string", "pattern": "^[a-z][a-z0-9.:-]{0,127}$" },
+        "ed25519_public_key": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id", "channel", "audience", "credential_source", "required_scopes",
+          "activation", "protected_resource_metadata"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9.:-]{0,63}$" },
+          "channel": { "enum": ["app-http", "mcp-http", "mcp-stdio"] },
+          "audience": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "credential_source": {
+            "enum": ["secure-cookie", "authorization-header", "crowsi-broker-reference"]
+          },
+          "required_scopes": {
+            "type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^[a-z][a-z0-9.:-]{0,95}$" }
+          },
+          "activation": { "enum": ["planned", "simulation", "contract-ready", "active"] },
+          "protected_resource_metadata": { "type": ["string", "null"] },
+          "minimum_assurance": { "enum": ["aal1", "aal2", "aal3"] },
+          "max_authentication_age_seconds": { "type": "integer", "minimum": 60, "maximum": 3600 }
+        }
+      }
+    }
+  }
+}
