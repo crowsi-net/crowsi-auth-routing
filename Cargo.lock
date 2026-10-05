@@ -223,8 +223,8 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 [[package]]
 name = "ihat-identity-assertion-contracts"
 version = "0.10.0"
-source = "sparse+https://ecosystem-private.invalid/cargo/index/"
-checksum = "e31a186424c6aeec36ba00e8ee758a83d26b7881c9b008bd64871539ce2adb64"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a20313a089b5a56248f939e572c33b2d44de7083ea43e9ff4f732868daf1f38"
 dependencies = [
  "ed25519-dalek",
  "hex",

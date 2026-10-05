@@ -11,15 +11,19 @@ Use the same validated authorization route declarations across an application an
 
 This library validates routing contracts. It does not authenticate users or own an identity database.
 
-Package distribution is not activated by this documentation. Use the checked-in source and the declared dependency versions; published availability must be verified separately.
+This library verifies declared transport authentication/authorization contracts. It is not an authentication service. Its production verifier uses caller-supplied trust and replay/status files; filesystem behavior is Linux-oriented.
 
-## Getting started
+## Package availability and verification
 
-Install Rust 1.97 or newer and make the declared dependencies available. Use the configured private registry when a dependency is not distributed publicly. Run from this repository:
+This is a reviewed distribution candidate; enabling crates.io in the manifest does not mean the version has been published. Verify registry availability before using the exact version. Rust 1.97 or newer is required. All dependencies must resolve from crates.io.
 
 ```sh
-cargo test --locked
+cargo test --locked --all-targets
+cargo test --locked --doc
+cargo package --locked
 ```
+
+Publish and verify ihat-identity-assertion-contracts 0.10.0 first. Until it exists on crates.io, public-registry package/build verification is blocked. The existing private-registry lockfile is preserved as a historical source lock and must be regenerated from actual public registry artifacts before adoption. Source-overlay tests are separate evidence.
 
 ## Documentation and source
 
