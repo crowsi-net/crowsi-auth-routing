@@ -1,0 +1,28 @@
+name: Public crate verification
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CARGO_HOME: ${{ github.workspace }}/public-cargo
+      RUSTUP_HOME: ${{ github.workspace }}/public-rustup
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal --component clippy --component rustfmt --no-self-update
+      - run: cargo +1.97.1 fmt --check
+      - run: cargo +1.97.1 test --locked --all-targets
+      - run: cargo +1.97.1 test --locked --all-targets --all-features
+      - run: cargo +1.97.1 test --locked --doc
+      - run: cargo +1.97.1 clippy --locked --all-targets -- -D warnings
+      - run: cargo +1.97.1 clippy --locked --all-targets --all-features -- -D warnings
+      - run: cargo +1.97.1 package --locked --list
+      - run: cargo +1.97.1 package --locked
