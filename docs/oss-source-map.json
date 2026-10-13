@@ -1,0 +1,288 @@
+{
+  "repository": "crowsi-net/crowsi-auth-routing",
+  "purpose": "Use the same validated authorization route declarations across an application and its MCP interface.",
+  "responsibility_boundary": "Own the named security/transport mechanism and its explicit trust boundary. Product account/storage/UI composition belongs to the consumer. Tests must not substitute declarations for enforced authority or live environment acceptance.",
+  "packages": [
+    {
+      "manifest": "Cargo.toml",
+      "package": "crowsi-auth-routing",
+      "ecosystem": "rust",
+      "description": "Transport-neutral authentication route and authorization contracts",
+      "interfaces": {
+        "lib": "src/lib.rs",
+        "features": {
+          "default": [],
+          "test-support": []
+        },
+        "bins": [],
+        "public_modules": [
+          "test_support"
+        ],
+        "public_reexports": [
+          "assurance::AuthenticationAssurance",
+          "context::{AuthorizationReceipt, VerifiedContext}",
+          "error::{AuthError, Result}",
+          "evidence::UntrustedContext",
+          "policy::{Activation, AuthChannel, CredentialSource, Policy, Route, SessionAuthority}",
+          "production::{PinnedStatusTrust, ProductionVerifier}",
+          "report::{AUTH_ROUTE_CHECK_SCHEMA, RouteCheck, RouteCheckReport}"
+        ],
+        "implicit_bins": []
+      },
+      "declared_commands": {}
+    }
+  ],
+  "schema_definitions": [
+    "schemas/auth-route-policy-v4.schema.json",
+    "schemas/context-evidence-v5.schema.json"
+  ],
+  "test_sources": [
+    "src/assurance.rs",
+    "src/evidence.rs",
+    "src/policy_validation.rs",
+    "src/validation.rs",
+    "tests/authorization.rs",
+    "tests/device_binding.rs",
+    "tests/production_boundary.rs",
+    "tests/replay.rs",
+    "tests/scoped_revocation.rs",
+    "tests/step_up.rs",
+    "tests/support/identity.rs",
+    "tests/support/mod.rs",
+    "tests/support/production_boundary_helpers.rs",
+    "tests/support/step_up.rs"
+  ],
+  "example_sources": [],
+  "workflow_definitions": [
+    {
+      "path": ".github/workflows/crate-publish.yml",
+      "jobs": [
+        {
+          "job": "prepare",
+          "condition": null,
+          "runs_on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": null,
+              "run": null,
+              "uses": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+              "condition": null
+            },
+            {
+              "name": "Isolate Cargo configuration",
+              "run": "echo \"CARGO_HOME=$RUNNER_TEMP/cargo-home\" >> \"$GITHUB_ENV\"",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": "Require approved public source and release tag",
+              "run": "python3 .github/scripts/release-gate.py",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": "Install pinned Rust toolchain",
+              "run": "rustup toolchain install 1.97.1 --profile minimal --component clippy",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": "Test, lint and verify actual package without credentials",
+              "run": "cargo +1.97.1 test --locked --all-targets\ncargo +1.97.1 test --locked --all-targets --all-features\ncargo +1.97.1 test --locked --doc\ncargo +1.97.1 clippy --locked --all-targets -- -D warnings\ncargo +1.97.1 clippy --locked --all-targets --all-features -- -D warnings\ncargo +1.97.1 package --locked\nmkdir -p \"$RUNNER_TEMP/package-release\"\ncp target/package/crowsi-auth-routing-0.1.0.crate \"$RUNNER_TEMP/package-release/\"\n",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": "Inspect and bind archive",
+              "run": "python3 .github/scripts/check-crate-release.py prepare \"$RUNNER_TEMP/package-release\"",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": null,
+              "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+              "condition": null
+            }
+          ]
+        },
+        {
+          "job": "publish",
+          "condition": "inputs.mode != 'prepare' && vars.REGISTRY_PUBLISH_ENABLED == 'true'",
+          "runs_on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": null,
+              "run": null,
+              "uses": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+              "condition": null
+            },
+            {
+              "name": "Isolate Cargo configuration",
+              "run": "echo \"CARGO_HOME=$RUNNER_TEMP/cargo-home\" >> \"$GITHUB_ENV\"",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": "Recheck source, gates and registry state",
+              "run": "python3 .github/scripts/release-gate.py",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "rustup toolchain install 1.97.1 --profile minimal",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": null,
+              "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+              "condition": null
+            },
+            {
+              "name": "Verify archive and native Cargo repack before authentication",
+              "run": "python3 .github/scripts/check-crate-release.py verify \"$RUNNER_TEMP/package-release\"\ncargo +1.97.1 publish --dry-run --locked --no-verify --registry crates-io\ncmp target/package/tmp-crate/crowsi-auth-routing-0.1.0.crate \"$RUNNER_TEMP/package-release/crowsi-auth-routing-0.1.0.crate\"\n",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": "First publication with this repository's temporary token",
+              "run": "test -n \"$CARGO_REGISTRY_TOKEN\"\ncargo +1.97.1 publish --locked --no-verify --registry crates-io\n",
+              "uses": null,
+              "condition": "inputs.mode == 'bootstrap'"
+            },
+            {
+              "name": null,
+              "run": null,
+              "uses": "rust-lang/crates-io-auth-action@c6f97d42243bad5fab37ca0427f495c86d5b1a18",
+              "condition": "inputs.mode == 'oidc'"
+            },
+            {
+              "name": "Subsequent publication with repository OIDC identity",
+              "run": "cargo +1.97.1 publish --locked --no-verify --registry crates-io",
+              "uses": null,
+              "condition": "inputs.mode == 'oidc'"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": ".github/workflows/crate-quality.yml",
+      "jobs": [
+        {
+          "job": "verify",
+          "condition": null,
+          "runs_on": "ubuntu-24.04",
+          "steps": [
+            {
+              "name": null,
+              "run": null,
+              "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+              "condition": null
+            },
+            {
+              "name": "Isolate Cargo and Rustup outside package source",
+              "run": "echo \"CARGO_HOME=$RUNNER_TEMP/public-cargo\" >> \"$GITHUB_ENV\"\necho \"RUSTUP_HOME=$RUNNER_TEMP/public-rustup\" >> \"$GITHUB_ENV\"\n",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "rustup toolchain install 1.97.1 --profile minimal --component clippy --component rustfmt --no-self-update",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "cargo +1.97.1 fmt --check",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "cargo +1.97.1 test --locked --all-targets",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "cargo +1.97.1 test --locked --all-targets --all-features",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "cargo +1.97.1 test --locked --doc",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "cargo +1.97.1 clippy --locked --all-targets -- -D warnings",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "cargo +1.97.1 clippy --locked --all-targets --all-features -- -D warnings",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "cargo +1.97.1 package --locked --list",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": null,
+              "run": "cargo +1.97.1 package --locked",
+              "uses": null,
+              "condition": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": ".github/workflows/oss-policy.yml",
+      "jobs": [
+        {
+          "job": "repository-policy",
+          "condition": null,
+          "runs_on": "ubuntu-latest",
+          "steps": [
+            {
+              "name": null,
+              "run": null,
+              "uses": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+              "condition": null
+            },
+            {
+              "name": "Verify repository policy",
+              "run": "python3 .github/oss-policy-check.py",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": "Verify policy regression tests",
+              "run": "cd .github && python3 -m unittest discover -s policy-tests",
+              "uses": null,
+              "condition": null
+            },
+            {
+              "name": "Check policy types",
+              "run": "python3 -m venv \"$RUNNER_TEMP/policy-types\"\n\"$RUNNER_TEMP/policy-types/bin/pip\" install -r .github/policy/requirements.txt\n\"$RUNNER_TEMP/policy-types/bin/mypy\" --strict .github/policy .github/oss-policy-check.py .github/policy-tests\n",
+              "uses": null,
+              "condition": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "evidence_policy": "Declarations and source paths are not proof of an executed acceptance. Exact CI head and result are recorded separately. No live accounts or production acceptance is inferred."
+}
