@@ -23,7 +23,7 @@ cargo test --locked --doc
 cargo package --locked
 ```
 
-Publish and verify ihat-identity-assertion-contracts 0.10.0 first. Until it exists on crates.io, public-registry package/build verification is blocked. The existing private-registry lockfile is preserved as a historical source lock and must be regenerated from actual public registry artifacts before adoption. Source-overlay tests are separate evidence.
+The official crates.io sparse index contains ihat-identity-assertion-contracts 0.10.0; its checksum matches the committed public Cargo.lock and it is not yanked (2026-10-13 verification). Run the independent public-registry functional CI before release. A source-overlay run is separate evidence and never replaces the public artifact check.
 
 ## Documentation and source
 
@@ -32,3 +32,5 @@ Publish and verify ihat-identity-assertion-contracts 0.10.0 first. Until it exis
 [Usage guide](docs/getting-started.md)
 
 [Schemas](schemas) · [Implementation and public interfaces](src) · [Verification cases](tests) · [Contributing](CONTRIBUTING.md) · [Security reporting](SECURITY.md) · [License](LICENSE) · [Attribution notices](NOTICE)
+
+[OSS responsibility and source completion](docs/oss-source-contract.md) defines the supported package boundary and required acceptance. It does not declare unexecuted source, distribution or production checks complete.
