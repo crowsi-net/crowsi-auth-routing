@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "repository": "crowsi-net/crowsi-auth-routing",
+  "defaultBranch": "main",
+  "requiredWorkflows": [
+    "crate-quality.yml",
+    "oss-policy.yml"
+  ],
+  "packages": [
+    {
+      "ecosystem": "cargo",
+      "manifest": "Cargo.toml",
+      "name": "crowsi-auth-routing",
+      "installDirectory": "."
+    }
+  ]
+}
