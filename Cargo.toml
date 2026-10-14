@@ -23,7 +23,7 @@ test-support = []
 
 [dependencies]
 ed25519-dalek = "2.2.0"
-getrandom = "0.3.4"
+getrandom = "0.4.3"
 hex = "0.4.3"
 ihat-identity-assertion-contracts = { version = "=0.10.0" }
 libc = "0.2.187"
