@@ -22,7 +22,7 @@ default = []
 test-support = []
 
 [dependencies]
-ed25519-dalek = "2.2.0"
+ed25519-dalek = "3.0.0"
 getrandom = "0.4.3"
 hex = "0.4.3"
 ihat-identity-assertion-contracts = { version = "=0.10.0" }
