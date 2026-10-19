@@ -1,7 +1,7 @@
 [package]
 include = ["Cargo.toml", "Cargo.lock", "LICENSE", "NOTICE", "README.md", "src/**", "schemas/**", "tests/**", "docs/**"]
 documentation = "https://docs.rs/crowsi-auth-routing"
-keywords = ["identity", "assertion", "authentication"]
+keywords = ["authentication", "authorization", "mcp", "typed-contracts", "rust"]
 categories = ["authentication"]
 name = "crowsi-auth-routing"
 version = "0.1.0"
