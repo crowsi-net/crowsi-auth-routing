@@ -4,7 +4,7 @@ documentation = "https://docs.rs/crowsi-auth-routing"
 keywords = ["authentication", "authorization", "mcp", "typed-contracts", "rust"]
 categories = ["authentication"]
 name = "crowsi-auth-routing"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.97"
 description = "Transport-neutral authentication route and authorization contracts"
@@ -25,7 +25,7 @@ test-support = []
 ed25519-dalek = "3.0.0"
 getrandom = "0.4.3"
 hex = "0.4.3"
-ihat-identity-assertion-contracts = { version = "=0.10.0" }
+ihat-identity-assertion-contracts = { version = "=0.10.1" }
 libc = "0.2.187"
 nix = { version = "0.31.3", features = ["fs", "user"] }
 serde = { version = "1.0.228", features = ["derive"] }
